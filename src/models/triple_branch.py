@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 
 from .eva_backbone import eva_x_base_patch16
+from .vaaf import ViewAwareAttentionFusion
 from .multiview import MultiImageHybridEVA, build_multiview_model
 
 
@@ -40,11 +41,11 @@ class TripleBranchEVA(nn.Module):
             self.single_model.eval()
 
         self.multi_model = multi_view_model
-        self.fusion_dim = embed_dim * 3
-        self.fusion_head = nn.Sequential(
-            nn.LayerNorm(self.fusion_dim),
-            nn.Dropout(0.2),
-            nn.Linear(self.fusion_dim, num_classes),
+        self.fusion_head = ViewAwareAttentionFusion(
+            embed_dim=embed_dim,
+            num_labels=num_classes,
+            num_heads=4,
+            dropout=0.2,
         )
 
     def train(self, mode: bool = True):
@@ -88,8 +89,7 @@ class TripleBranchEVA(nn.Module):
             vec_2, logits_2 = self.forward_single_branch(img2)
         avg_single_logits = (logits_1 + logits_2) / 2
         vec_fused = self.forward_multi_branch(x)
-        combined_features = torch.cat([vec_1, vec_2, vec_fused], dim=1)
-        logits_fusion = self.fusion_head(combined_features)
+        logits_fusion = self.fusion_head(vec_1, vec_fused, vec_2)
         final_logits = avg_single_logits + logits_fusion
         return final_logits
 
