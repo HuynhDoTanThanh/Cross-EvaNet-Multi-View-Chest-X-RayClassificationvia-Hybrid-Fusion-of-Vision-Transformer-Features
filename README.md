@@ -1,6 +1,9 @@
-# Cross-EvaNet: Multi-View Chest X-RayClassificationvia Hybrid Fusion of Vision Transformer Features
+# CrossEvaNet: Multi-view Vision Transformer Fusion for Automated Thoracic Disease Classification
 
 Multi-view chest X-ray multi-label classification using a **Triple-Branch EVA** architecture: frozen single-view backbone, multi-view fusion backbone, and a fusion head. Designed for TPU (Kaggle/Colab) and GPU.
+
+![CrossEvaNet Architecture](images/architecture.png)
+
 
 ## Competition
 
